@@ -13,7 +13,7 @@ from discord_rpc.async_ import (AsyncDiscordRpc, DiscordRpcError, JSON,
 
 from .config import Config
 
-CLIENT_ID = '435587535150907392'
+CLIENT_ID = '1011937843473555456'
 PLAYER_ICONS = {
     # Maps player identity name to icon name
     # https://discord.com/developers/applications/435587535150907392/rich-presence/assets
@@ -171,17 +171,19 @@ class DiscordMpris:
         # set icons and hover texts
         if player.name in PLAYER_ICONS:
             activity['assets'] = {'large_text': player.name,
-                                  'large_image': PLAYER_ICONS[player.name],
+                                  'large_image': 'miku',  #PLAYER_ICONS[player.name],
                                   'small_image': state.lower(),
                                   'small_text': state}
         else:
-            activity['assets'] = {'large_text': f"{player.name} ({state})",
-                                  'large_image': state.lower()}
+            activity['assets'] = {'large_text': f"{player.name}",  # ({state})",
+                                  'large_image': 'miku',  #state.lower()}
+                                  'small_image': state.lower(),
+                                  'small_text': state}
 
         if activity != self.last_activity:
             op_recv, result = await self.discord.set_activity(activity)
             if result['evt'] == 'ERROR':
-                logger.error(f"Error setting activity: {result['data']['message']}")
+                logger.error(f"Error setting activity: {op_recv}: {result['data']['message']}")
             self.last_activity = activity
         else:
             logger.debug("Not sending activity because it didn't change")
