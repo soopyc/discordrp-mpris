@@ -148,7 +148,7 @@ class DiscordMpris:
             details_fmt = "{title}"
         details = self.format_details(details_fmt, replacements)
 
-        activity['details'] = details
+        activity['details'] = details if len(details) > 0 else "Nothing is playing."
 
         # set state and timestamps
         activity['timestamps'] = {}
@@ -167,18 +167,27 @@ class DiscordMpris:
                                                         replacements)
             else:
                 activity['state'] = self.format_details("{state}", replacements)
+        # I SWEAR the upstream devs are going crazy over PAUSED and PLAYING
+        activity['state'] = f"on {replacements['album']}" if replacements['album'] else ""
 
         # set icons and hover texts
-        if player.name in PLAYER_ICONS:
-            activity['assets'] = {'large_text': player.name,
-                                  'large_image': 'miku',  #PLAYER_ICONS[player.name],
-                                  'small_image': state.lower(),
-                                  'small_text': state}
-        else:
-            activity['assets'] = {'large_text': f"{player.name}",  # ({state})",
-                                  'large_image': 'miku',  #state.lower()}
-                                  'small_image': state.lower(),
-                                  'small_text': state}
+        #if player.name in PLAYER_ICONS:
+        #    activity['assets'] = {'large_text': player.name,
+        #                          'large_image': 'miku',  #PLAYER_ICONS[player.name],
+        #                          'small_image': state.lower(),
+        #                          'small_text': state}
+        #else:
+        #    activity['assets'] = {'large_text': f"{player.name}",  # ({state})",
+        #                          'large_image': 'miku',  #state.lower()}
+        #                          'small_image': state.lower(),
+        #                          'small_text': state}
+
+        activity['assets'] = {
+                'large_text': player.name,
+                'large_image': 'miku',
+                'small_image': state.lower(),
+                'small_text': self.format_details("{state} [{position}/{length}]", replacements)
+        }
 
         if activity != self.last_activity:
             op_recv, result = await self.discord.set_activity(activity)
