@@ -142,13 +142,18 @@ class DiscordMpris:
 
         # TODO make format configurable
         if replacements['artist']:
-            # details_fmt = "{artist} - {title}"
-            details_fmt = "{title}\nby {artist}"
+            details_fmt = "{title} - {artist}"
+            # details_fmt = "{title}\nby {artist}"
         else:
             details_fmt = "{title}"
         details = self.format_details(details_fmt, replacements)
 
-        activity['details'] = details if len(details) > 0 else "Nothing is playing."
+        if (state == PlaybackStatus.PLAYING or state == PlaybackStatus.PAUSED) and len(details) < 1:
+            activity['details'] = "(no title)"
+        elif len(details) < 1:
+            activity['details'] = "Nothing is playing."
+        else:
+            activity['details'] = details
 
         # set state and timestamps
         activity['timestamps'] = {}
@@ -168,7 +173,10 @@ class DiscordMpris:
             else:
                 activity['state'] = self.format_details("{state}", replacements)
         # I SWEAR the upstream devs are going crazy over PAUSED and PLAYING
-        activity['state'] = f"on {replacements['album']}" if replacements['album'] else ""
+        if replacements['album']:
+            activity['state'] = f"on {replacements['album']}"
+        else:
+            activity['state'] = '(no album)'
 
         # set icons and hover texts
         #if player.name in PLAYER_ICONS:
