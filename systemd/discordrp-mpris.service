@@ -4,8 +4,8 @@ Description=Discord Rich Presence based on mpris2 media players
 [Service]
 Type=simple
 ExecStart=/usr/bin/discordrp-mpris
-# Restart=on-failure
-# RestartSec=3
+Restart=on-failure
+RestartSec=3
 
 [Install]
 WantedBy=default.target
