@@ -89,7 +89,12 @@ class DiscordMpris:
         while True:
             try:
                 await self.tick()
-
+            except BrokenPipeError:
+                logger.critical(
+                        "[BUG/HACK] encountered broken pipe error. As of the date of "
+                        "commit of this change, this error is irrecoverable."
+                )
+                return 101
             except async_exceptions as e:
                 if logger.isEnabledFor(logging.DEBUG):
                     logger.debug("Connection error during tick", exc_info=e)

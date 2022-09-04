@@ -30,7 +30,8 @@ logger = logging.getLogger(__name__)
 
 # Commonly thrown exceptions when connection is lost.
 # Must be a tuple to be used in `except`.
-exceptions = (ConnectionResetError, BrokenPipeError, asyncio.IncompleteReadError)
+#exceptions = (ConnectionResetError, BrokenPipeError, asyncio.IncompleteReadError)
+exceptions = (ConnectionResetError, asyncio.IncompleteReadError)
 
 
 class DiscordRpcError(Exception):
@@ -144,6 +145,12 @@ class AsyncDiscordRpc(metaclass=ABCMeta):
             reply = await self.recv()
             if reply[1].get('nonce') == nonce:
                 return reply
+            elif reply[1].get('code') == 1003:
+                logger.critical("[BUG/HACK] received 1003 code, unable to continue. Crashing until a fix is found.")
+                raise RuntimeError(
+                        'received 1003 from discord, unable to reconnect to websocket. '
+                        'see https://github.com/soopyc/discordrp-mpris/issues/2 for more details.'
+                )
             else:
                 logger.warning("received unexpected reply; %s", reply)
 
